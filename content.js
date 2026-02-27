@@ -4,7 +4,6 @@ let skipInProgress = false;
 let lastSkippedPath = null;
 
 function skipShort() {
-    console.log("Skipping sponsored short...");
 
     document.dispatchEvent(
         new KeyboardEvent("keydown", {
