@@ -2,6 +2,8 @@ console.log("YT Sponsor Skipper Loaded");
 
 let lastSkipAt = 0;
 const SKIP_COOLDOWN_MS = 1500;
+let skipInProgress = false;
+let lastSkippedPath = null;
 
 function skipShort() {
     console.log("Skipping sponsored short...");
@@ -28,14 +30,39 @@ function checkForSponsored() {
     if (badge.textContent.trim() === "Sponsored") {
         console.log("Sponsored short detected!");
 
-        if (Date.now() - lastSkipAt > SKIP_COOLDOWN_MS) {
-            lastSkipAt = Date.now();
-            skipShort();
-        } else {
-            console.log("In cooldown, skipping suppressed.");
+        if (skipInProgress) {
+            console.log("Skip already in progress, ignoring.");
+            return;
         }
-    } else {
-        console.log("No sponsorship detected.");
+
+        const now = Date.now();
+        if (now - lastSkipAt <= SKIP_COOLDOWN_MS) {
+            console.log("In cooldown, skipping suppressed.");
+            return;
+        }
+
+        // start a skip and watch for navigation to avoid repeated skips
+        skipInProgress = true;
+        lastSkippedPath = window.location.pathname;
+        skipShort();
+
+        const start = Date.now();
+        const navWatcher = setInterval(() => {
+            // if navigation happened, allow future skips
+            if (window.location.pathname !== lastSkippedPath) {
+                lastSkipAt = Date.now();
+                skipInProgress = false;
+                clearInterval(navWatcher);
+                return;
+            }
+
+            // give up after 5s and reset state (fallback)
+            if (Date.now() - start > 5000) {
+                lastSkipAt = Date.now();
+                skipInProgress = false;
+                clearInterval(navWatcher);
+            }
+        }, 150);
     }
 }
 
