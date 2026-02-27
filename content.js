@@ -1,5 +1,3 @@
-console.log("YT Sponsor Skipper Loaded");
-
 let lastSkipAt = 0;
 const SKIP_COOLDOWN_MS = 1500;
 let skipInProgress = false;
@@ -28,16 +26,13 @@ function checkForSponsored() {
     if (!badge) return;
 
     if (badge.textContent.trim() === "Sponsored") {
-        console.log("Sponsored short detected!");
 
         if (skipInProgress) {
-            console.log("Skip already in progress, ignoring.");
             return;
         }
 
         const now = Date.now();
         if (now - lastSkipAt <= SKIP_COOLDOWN_MS) {
-            console.log("In cooldown, skipping suppressed.");
             return;
         }
 
